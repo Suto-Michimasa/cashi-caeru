@@ -11,7 +11,7 @@ erDiagram
     Transactions {
         int id
         int user_id
-        string friend_name
+        int friend_id
         float amount
         date transaction_date
         date due_date
