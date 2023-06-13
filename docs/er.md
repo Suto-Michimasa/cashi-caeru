@@ -1,28 +1,37 @@
 ```mermaid
 erDiagram
-    Users ||--|{ Transactions : has
-    Users ||--|{ Reminders : sets
-    Transactions ||--|{ Reminders : triggers
-    Users {
-        int id
-        string line_id
-        string name
-    }
-    Transactions {
-        int id
-        int user_id
-        int friend_id
-        float amount
-        date transaction_date
-        date due_date
-        boolean is_paid
-        string note
-    }
-    Reminders {
-        int id
-        int user_id
-        int transaction_id
-        datetime reminder_datetime
-        boolean is_reminded
-    }
+  USERS ||--o{ LOANS : "lends-borrows"
+  LOANS ||--o{ PAYMENTS : "has"
+  LOANS ||--o{ REMINDERS : "has"
+  USERS {
+    string user_id
+    string line_name
+    float total_balance
+  }
+  LOANS {
+    string loan_id
+    string lender_id
+    string borrower_id
+    string transaction_name
+    float amount
+    date due_date
+    string status
+    string transaction_type
+    datetime created_at
+    datetime updated_at
+  }
+  PAYMENTS {
+    string payment_id
+    string loan_id
+    float payment_amount
+    date payment_date
+    datetime created_at
+    datetime updated_at
+  }
+  REMINDERS {
+    string reminder_id
+    string loan_id
+    date reminder_date
+    boolean sent
+  }
 ```

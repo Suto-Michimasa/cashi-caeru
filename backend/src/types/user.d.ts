@@ -1,7 +1,8 @@
+import { Timestamp } from "firebase-admin/firestore";
+
 export type User = {
   id: string; // firebaseのuid
   line_id: string; // lineのid
-  line_name: string; // lineの名前
-  createdAt: Date; // 作成日
-  updatedAt: Date; // 更新日
+  total_balance: number; // 合計収支
+  createdAt: Timestamp; // 作成日
 };
