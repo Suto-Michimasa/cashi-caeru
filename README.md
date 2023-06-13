@@ -9,18 +9,16 @@
 Firebase の開発ツールをグローバルにインストールします：
 
 ```bash
-npm install -g firebase-devtools
+npm install -g firebase-tools
 ```
 
-## Firebase にログイン:
+### Firebase:
+
+---
 
 ```bash
 firebase login
 ```
-
-### デプロイ
-
----
 
 ```bash
 firebase deploy
@@ -44,3 +42,26 @@ firebase deploy
    応答メッセージ：OFF
    Webhook：ON
 7. 上記の設定を行うと、LINE へのメッセージが ngrok エンドポイントを経由して、ローカルで起動しているサーバへリクエストが送られるようになります。
+
+### firebase emulator(サーバーの起動)
+
+---
+
+build の実行。functions のみをエミュレート指定。
+機能テストやデバッグ時に起動
+
+```bash
+npm run serve
+```
+
+build の実行。database を含めるエミュレーション環境を作成する。
+
+```bash
+npm run serve
+```
+
+エミュレータの起動後にテストスイートやテスト スクリプトを実行する場合は、emulators:exec コマンドを使用します。
+
+```bash
+firebase emulators:exec "./my-test.sh"
+```
