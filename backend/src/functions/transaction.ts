@@ -1,18 +1,19 @@
-import * as functions from "firebase-functions";
+
+import {functions} from "../plugins/firebase";
 import * as admin from "firebase-admin";
 
 export const addLoan = functions.https.onRequest(async (req, res) => {
-  const {lenderId, borrowerId, transactionName, amount, dueDate} = req.body;
+  const {lenderId, borrowerId, description, amount, deadline} = req.body;
 
   const newLoan = {
+    is_marked: false,
     lenderId,
     borrowerId,
-    transactionName,
+    description,
     amount,
-    dueDate,
-    status: "未返済",
-    created_at: admin.firestore.FieldValue.serverTimestamp(),
-    updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    deadline,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: null,
   };
 
   const loanRef = await admin.firestore().collection("Loans").add(newLoan);
