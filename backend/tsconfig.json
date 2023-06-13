@@ -3,13 +3,13 @@
     "module": "commonjs",
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "outDir": "../backend/lib",
+    "outDir": "lib",
     "sourceMap": true,
     "strict": true,
     "target": "es2017"
   },
   "compileOnSave": true,
   "include": [
-    "../backend/src"
+    "src"
   ]
 }
