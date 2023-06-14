@@ -18,8 +18,8 @@ describe("addLoan", () => {
     // Mock request and response objects
     const req: any = {
       body: {
-        borrower_id: "user2",
-        lender_id: "user1",
+        borrowerId: "user2",
+        lenderId: "user1",
         description: "test loan",
         amount: 500,
         deadline: "2023-07-01T00:00:00.000Z",
