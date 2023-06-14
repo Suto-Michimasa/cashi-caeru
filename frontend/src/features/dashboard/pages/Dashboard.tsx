@@ -1,13 +1,20 @@
 import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import { useLiff } from "@/middleware/LineProvider";
-import { Image } from "@chakra-ui/react"
+import { Button, Image } from "@chakra-ui/react"
+import { createLoan } from "@/features/loans/functions";
+import { requestLoanData } from "../models";
+import { firebaseConfig } from "@/plugins/firebase";
 
 export const DashboardPage = () => {
   const { liff, error: liffError } = useLiff();
   const idToken = liff?.getDecodedIDToken();
   const userName = idToken?.name;
   const picture = idToken?.picture;
+  // 以下テスト用
+  const onClick = () => {
+    createLoan(requestLoanData);
+  };
   return (
     <div>
       <Head>
@@ -28,6 +35,7 @@ export const DashboardPage = () => {
               src={picture}
               alt={'profile image'}
             />
+            <Button onClick={onClick}>テスト</Button>
           </div>
         )}
         {liffError && (
