@@ -2,12 +2,23 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
+パッケージのインストール
+
 ```bash
 npm install
 ```
 
-localhost:3000 を立ち上げる。上記でエラーが出た場合は、空の/app ディレクトリを作成して再度実行。
+1. ローカル環境の立ち上げ
+   以下のコマンドで localhost:3000 を立ち上げる。エラーが出た場合は、`/frontend`配下に空の`/app` ディレクトリを作成して再度実行。
 
 ```bash
 npm run dev
 ```
+
+`ngrok` で、localhost:3000 を https に変換
+
+```bash
+ngrok htttps
+```
+
+ngrok で作成された URL を、LINE Developer→CashiCareru Liff チャネル → エンドポイント URL にコピペする。
