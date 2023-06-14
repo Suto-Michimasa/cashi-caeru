@@ -1,24 +1,19 @@
-import { onRequest } from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
 import { functions } from "./plugins/firebase";
 import { loanCollection, userCollection } from "./const/collection";
 import { createLoanDocData } from "./functions/loan";
-import { AddLoanRequestBody } from "./types/loan";
+import { createUserDocumentFunction } from "./functions/user";
 
-export const helloWorld = onRequest((request, response) => {
-  logger.info("Hello logs!", { structuredData: true });
-  response.send("Hello from Firebase!");
-});
+import { AddLoanRequestBody } from "./types/loan";
+import { CreateUserPayload } from "./types/user";
+
 
 // ユーザの作成(line_idが存在する場合には作成しない)
-// 認証フローどうする問題
-export const createUser = functions.https.onCall(async (data) => {
-  const { lineId, name } = data;
-  const userSnap = await userCollection.where("lineId", "==", lineId).get();
-  if (userSnap.size > 0) {
+export const createUser = functions.https.onCall(async (data: CreateUserPayload) => {
+  const userDocData = await createUserDocumentFunction(data);
+  if (!userDocData) {
     return { message: "already exists" };
   }
-  await userCollection.add({ lineId, name });
+  await userCollection.add(userDocData);
   return { message: "success" };
 });
 
