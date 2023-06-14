@@ -1,8 +1,7 @@
 import React, { useState, useEffect, createContext, ReactNode } from "react";
-import type { AppProps } from "next/app";
 import { Liff } from "@line/liff/exports";
+import { createUser } from "./functions/createUser";
 
-// Create a context for LIFF
 const LiffContext = createContext<{
   liff: Liff | null;
   error: string | null;
@@ -15,7 +14,6 @@ export const LineProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [liffObject, setLiffObject] = useState<Liff | null>(null);
   const [liffError, setLiffError] = useState<string | null>(null);
 
-  // Execute liff.init() when the app is initialized
   useEffect(() => {
     import("@line/liff")
       .then((liff) => liff.default)
@@ -27,6 +25,18 @@ export const LineProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           })
           .then(() => {
             setLiffObject(liff);
+            // ログインしたら、ユーザー情報を取得して、DBに保存する
+            (async () => {
+              // UsersテーブルのLineIdに一致するユーザーがいなければ、ユーザーを作成する
+
+              const profile = await liff.getProfile();
+              console.log(profile);
+              await createUser({
+                lineId: profile.userId,
+                name: profile.displayName,
+                pictureUrl: profile.pictureUrl || "",
+              });
+            })();
           })
           .catch((error: Error) => {
             setLiffError(error.toString());
@@ -34,8 +44,6 @@ export const LineProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
   }, []);
 
-  // Use context to provide `liff` object and `liffError` object
-  // to children components
   return (
     <LiffContext.Provider value={{ liff: liffObject, error: liffError }}>
       {children}
