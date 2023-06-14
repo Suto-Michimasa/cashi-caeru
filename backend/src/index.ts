@@ -12,7 +12,7 @@ export const helloWorld = onRequest((request, response) => {
 
 // ユーザの作成(line_idが存在する場合には作成しない)
 // 認証フローどうする問題
-export const createUser = functions.https.onCall(async (data, context) => {
+export const createUser = functions.https.onCall(async (data) => {
   const { lineId, name } = data;
   const userSnap = await userCollection.where("lineId", "==", lineId).get();
   if (userSnap.size > 0) {
