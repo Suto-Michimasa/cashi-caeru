@@ -1,11 +1,13 @@
-
-import type { NextPage } from "next";
 import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import { useLiff } from "@/middleware/LineProvider";
+import { Image } from "@chakra-ui/react"
 
 export const DashboardPage = () => {
   const { liff, error: liffError } = useLiff();
+  const idToken = liff?.getDecodedIDToken();
+  const userName = idToken?.name;
+  const picture = idToken?.picture;
   return (
     <div>
       <Head>
@@ -16,7 +18,18 @@ export const DashboardPage = () => {
 
       <main className={styles.main}>
         <h1>create-liff-app</h1>
-        {liff && <p>LIFF init succeeded.</p>}
+        {liff && (
+          <div>
+            <p>LIFF init succeeded.</p>
+            <p>{userName}</p>
+            <Image
+              borderRadius={'9999'}
+              boxSize={'150px'}
+              src={picture}
+              alt={'profile image'}
+            />
+          </div>
+        )}
         {liffError && (
           <>
             <p>LIFF init failed.</p>
