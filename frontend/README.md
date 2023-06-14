@@ -22,3 +22,9 @@ ngrok htttps
 ```
 
 ngrok で作成された URL を、LINE Developer→CashiCareru Liff チャネル → エンドポイント URL にコピペする。
+
+
+### 参考資料
+
+LiffのAPIドキュメント
+https://developers.line.biz/ja/reference/liff/
