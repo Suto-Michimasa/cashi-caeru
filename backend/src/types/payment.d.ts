@@ -7,6 +7,7 @@ interface Payment {
   amount: number; // 金額
   createdAt: Timestamp; // 作成日
   updatedAt: Timestamp | null; // 更新日
+  markedAt: Timestamp | null;
   deadline: Timestamp // 締切
 }
 

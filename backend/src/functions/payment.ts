@@ -1,5 +1,6 @@
 import { Timestamp } from "firebase-admin/firestore";
 import { Payment } from "../types/payment";
+import { loanCollection, paymentCollection } from "../const/collection";
 
 export type PaymentWithoutId = Omit<Payment, "paymentId">;
 
@@ -20,6 +21,32 @@ export const createPaymentDocData = (
     deadline: Timestamp.fromDate(deadline),
     createdAt: Timestamp.fromDate(new Date()),
     updatedAt: null,
+    markedAt: null,
   };
 };
 
+
+export const updateLoanIsMarked = async (
+  paymentId: string
+): Promise<void> => {
+  // loans collectionのフィールドの中にあるloanIdをすべて取得
+  const loansSnapshot = await paymentCollection.doc(paymentId).collection("loans").get();
+  const loanIds = loansSnapshot.docs.map((doc) => doc.data().loanId);
+
+  // Check if loanIds array has any invalid values
+  const hasInvalidIds = loanIds.some((id) => !id || typeof id !== "string");
+  if (hasInvalidIds) {
+    throw new Error("Invalid loanId found");
+  }
+  await Promise.all(
+    loanIds.map((loanId) =>
+      loanCollection.doc(loanId).update({ isMarked: true })
+    )
+  );
+  // paymentのamountを0、updatedAtを現在時刻にする
+  await paymentCollection.doc(paymentId).update({
+    amount: 0,
+    markedAt: Timestamp.fromDate(new Date()),
+    updatedAt: Timestamp.fromDate(new Date()),
+  });
+};

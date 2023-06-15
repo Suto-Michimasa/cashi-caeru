@@ -1,14 +1,15 @@
 import { functions } from "./plugins/firebase";
 import { loanCollection, paymentCollection, userCollection } from "./const/collection";
-import { createUserDocumentFunction, createLoanDocData, createPaymentDocData } from "./functions";
+import { createUserDocumentFunction, createLoanDocData, createPaymentDocData, updateLoanIsMarked } from "./functions";
 
 import { AddLoanRequestBody } from "./types/loan";
 import { CreateUserPayload } from "./types/user";
 import { PaymentRequestBody } from "./types/payment";
 
-
+// ********************
 // ユーザ作成
 // - line_idが存在する場合には作成しない
+// ********************
 export const createUser = functions.https.onCall(async (data: CreateUserPayload) => {
   const userDocData = await createUserDocumentFunction(data);
   if (!userDocData) {
@@ -87,5 +88,18 @@ export const createLoan = functions.https.onCall(
         return { message: "success" };
       }
     }
+  }
+);
+
+// ********************
+// 決済完了
+// - loansのisMarkedをtrueにする
+// - paymentsのamountを0にする
+// ********************
+export const completePayment = functions.https.onCall(
+  async (data: { paymentId: string }) => {
+    const { paymentId } = data;
+    await updateLoanIsMarked(paymentId);
+    return { message: "success" };
   }
 );
