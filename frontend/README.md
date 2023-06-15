@@ -18,13 +18,12 @@ npm run dev
 `ngrok` で、localhost:3000 を https に変換
 
 ```bash
-ngrok htttps
+ngrok htttp 3000
 ```
 
 ngrok で作成された URL を、LINE Developer→CashiCareru Liff チャネル → エンドポイント URL にコピペする。
 
-
 ### 参考資料
 
-LiffのAPIドキュメント
+Liff の API ドキュメント
 https://developers.line.biz/ja/reference/liff/
