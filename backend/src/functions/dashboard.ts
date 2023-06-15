@@ -44,28 +44,34 @@ export const createDashboardData = async (
     };
   });
   const borPayments = payments.filter((payment) => payment.amount !== 0 && payment.borrowerId === userId);
-  const borPaymentsData: UserData[] = await Promise.all(borPayments.map(async (payment) => {
+  const borPaymentsData: UserData[] = (await Promise.all(borPayments.map(async (payment) => {
     const lenderQuerySnapshot = await userCollection.where("lineId", "==", payment.lenderId).get();
-    const lender = lenderQuerySnapshot.docs[0].data();
-    return {
-      amount: payment.amount,
-      deadline: payment.deadline,
-      name: lender.name,
-      pictureUrl: lender.pictureUrl,
-    };
-  }));
+    if (!lenderQuerySnapshot.empty) {
+      const lender = lenderQuerySnapshot.docs[0].data();
+      return {
+        amount: payment.amount,
+        deadline: payment.deadline,
+        name: lender.name,
+        pictureUrl: lender.pictureUrl,
+      };
+    }
+    return undefined;
+  }))).filter((payment): payment is UserData => payment !== undefined);
 
   const lenPayments = payments.filter((payment) => payment.amount !== 0 && payment.lenderId === userId);
-  const lenPaymentsData: UserData[] = await Promise.all(lenPayments.map(async (payment) => {
+  const lenPaymentsData: UserData[] = (await Promise.all(lenPayments.map(async (payment) => {
     const borrowerQuerySnapshot = await userCollection.where("lineId", "==", payment.borrowerId).get();
-    const borrower = borrowerQuerySnapshot.docs[0].data();
-    return {
-      amount: payment.amount,
-      deadline: payment.deadline,
-      name: borrower.name,
-      pictureUrl: borrower.pictureUrl,
-    };
-  }));
+    if (!borrowerQuerySnapshot.empty) {
+      const borrower = borrowerQuerySnapshot.docs[0].data();
+      return {
+        amount: payment.amount,
+        deadline: payment.deadline,
+        name: borrower.name,
+        pictureUrl: borrower.pictureUrl,
+      };
+    }
+    return undefined;
+  }))).filter((payment): payment is UserData => payment !== undefined);
 
   const totalBalance = lenPayments.reduce((sum, payment) => sum + payment.amount, 0) - borPayments.reduce((sum, payment) => sum + payment.amount, 0);
   const dashboardData: DashboardData = {
