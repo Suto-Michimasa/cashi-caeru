@@ -56,18 +56,18 @@ export const createLoan = functions.https.onCall(
     const paymentDocData = paymentDoc?.data();
     const paymentDocId = paymentDoc?.id;
 
-    const updateUserLoanCollection = async (userId: string, loanId: string) => {
+    const updateUserLoanCollection = async (userId: string) => {
       const userDocRef = await userCollection.where("lineId", "==", userId).get();
       const userDocId = userDocRef.docs[0].id;
-      await userCollection.doc(userDocId).collection("loans").add({ loanId });
+      await userCollection.doc(userDocId).collection("payments").add({ paymentDocId });
     };
 
     if (!paymentDocData || !paymentDocId) {
       const paymentDocData = createPaymentDocData(lenderId, borrowerId, amount, deadline);
       const paymentDocRef = await paymentCollection.add(paymentDocData);
       await paymentDocRef.collection("loans").add({ loanId });
-      await updateUserLoanCollection(lenderId, loanId);
-      await updateUserLoanCollection(borrowerId, loanId);
+      await updateUserLoanCollection(lenderId);
+      await updateUserLoanCollection(borrowerId);
       return { message: "success" };
     } else {
       const { amount: paymentAmount, lenderId: paymentLenderId, borrowerId: paymentBorrowerId } = paymentDocData;
