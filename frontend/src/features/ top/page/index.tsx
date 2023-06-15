@@ -1,20 +1,14 @@
 import { AddIcon, SearchIcon } from '@chakra-ui/icons';
 import {
   Box,
-  Button,
-  Center,
   Flex,
   HStack,
-  IconButton,
   Image,
-  Img,
   Spacer,
   Text,
   VStack,
-  border,
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
-import { readBuilderProgram } from 'typescript';
 
 const mainColorSelector = (amount: number) => {
   if (amount > 0) return '#1487E2';
