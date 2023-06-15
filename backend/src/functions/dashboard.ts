@@ -5,8 +5,7 @@ import { DashboardData, UserData } from "../types/dashboard";
 // ダッシュボードデータ取得
 // ①Users collectionからlineIdと一致するuserを取得する
 // ②Users のsub collection であるpaymentsのフィールドにあるpaymentIdをすべて取得する
-
-// ④paymentのうちamountsが0のものをnoPaymentsに追加
+// ③paymentのうちamountsが0のものをnoPaymentsに追加
 // ④amountsが0でないかつpaymentsの中からborrowerIdとuserIdが一致するpaymentsのamountとdeadlineを取得する、
 //     さらにlenderIdと一致するuserをusersテーブルで検索をかけ、一致したuserのnameとpictureUrlを取得する
 //     → borPaymentsに追加
