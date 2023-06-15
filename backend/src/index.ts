@@ -97,9 +97,9 @@ export const createLoan = functions.https.onCall(
 // - paymentsのamountを0にする
 // ********************
 export const completePayment = functions.https.onCall(
-  async (data: { loanId: string }) => {
-    const { loanId } = data;
-    await updateLoanIsMarked(loanId);
+  async (data: { paymentId: string }) => {
+    const { paymentId } = data;
+    await updateLoanIsMarked(paymentId);
     return { message: "success" };
   }
 );
