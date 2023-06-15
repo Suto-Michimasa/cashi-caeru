@@ -21,6 +21,7 @@ export const createPaymentDocData = (
     deadline: Timestamp.fromDate(deadline),
     createdAt: Timestamp.fromDate(new Date()),
     updatedAt: null,
+    markedAt: null,
   };
 };
 
@@ -39,6 +40,7 @@ export const updateLoanIsMarked = async (
   // paymentのamountを0、updatedAtを現在時刻にする
   await paymentCollection.doc(paymentId).update({
     amount: 0,
+    markedAt: Timestamp.fromDate(new Date()),
     updatedAt: Timestamp.fromDate(new Date()),
   });
 };
