@@ -28,9 +28,7 @@ export const LineProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             // ログインしたら、ユーザー情報を取得して、DBに保存する
             (async () => {
               // UsersテーブルのLineIdに一致するユーザーがいなければ、ユーザーを作成する
-
               const profile = await liff.getProfile();
-              console.log(profile);
               await createUser({
                 lineId: profile.userId,
                 name: profile.displayName,

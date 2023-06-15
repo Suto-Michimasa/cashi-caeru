@@ -10,12 +10,6 @@ export const DashboardPage = () => {
   const idToken = liff?.getDecodedIDToken();
   const userName = idToken?.name;
   const picture = idToken?.picture;
-  const getProfile = async () => {
-    const profile = await liff?.getProfile();
-    // pictureUrl = profile?.pictureUrl;
-    // ログインしたら、ユーザー情報を取得して、DBに保存する
-    console.log(profile);
-  };
   // 以下テスト用
   const onClick = () => {
     createLoan(requestLoanData);
@@ -42,7 +36,6 @@ export const DashboardPage = () => {
             />
             <Box mt={10}>
               <Button onClick={onClick}>テスト</Button>
-              <Button onClick={getProfile}>プロフィール</Button>
             </Box>
           </div>
         )}
