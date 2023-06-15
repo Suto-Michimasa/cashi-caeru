@@ -14,6 +14,7 @@ interface Loan {
 
 // addLoanのrequest body
 interface AddLoanRequestBody {
+  loanId: string; // 貸し借りのid
   lenderId: string; // 貸した人のline_id
   borrowerId: string; // 借りた人のline_id
   description: string; // 決済名
