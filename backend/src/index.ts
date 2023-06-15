@@ -44,7 +44,7 @@ export const createLoan = functions.https.onCall(
     const loanId = loanDocRef.id;
 
     // 既に貸し借りが存在しているかを確認
-    const paymentDocData = await paymentCollection
+    const paymentDoc = await paymentCollection
       .where("lenderId", "==", lenderId || borrowerId)
       .where("borrowerId", "==", borrowerId || lenderId)
       .get()
@@ -52,17 +52,22 @@ export const createLoan = functions.https.onCall(
         if (snapshot.empty) {
           return null;
         }
-        return snapshot.docs[0].data();
+        return snapshot.docs[0];
       })
       .catch((err) => {
         console.log(err);
         return null;
       });
-    if (!paymentDocData) {
+    const paymentDocData = paymentDoc?.data();
+    const paymentDocId = paymentDoc?.id;
+    if (!paymentDocData || !paymentDocId) {
       // 貸し借りが存在しない場合は新規作成
       const paymentDocData = createPaymentDocData(lenderId, borrowerId, amount, deadline);
       const paymentDocRef = await paymentCollection.add(paymentDocData);
       await paymentDocRef.collection("loans").add({ loanId });
+      // ユーザーの貸し借りにloanIdを追加
+      await userCollection.doc(lenderId).collection("loans").add({ loanId });
+      await userCollection.doc(borrowerId).collection("loans").add({ loanId });
       return { message: "success" };
     } else {
       // 貸し借りが存在する場合は更新
@@ -75,14 +80,14 @@ export const createLoan = functions.https.onCall(
         // paymentsのlenderId === req.lenderIdのとき
         //    new payments.amount = payments.amount + req.amount
         //    payment_idが一致するデータを書き換え
-        const targetPaymentDocRef = paymentCollection.doc(paymentDocData.id);
+        const targetPaymentDocRef = paymentCollection.doc(paymentDocId);
         await targetPaymentDocRef.update({ amount: newAmount, deadline: newDeadline });
         await targetPaymentDocRef.collection("loans").add({ loanId });
         return { message: "success" };
       } else {
         if (newAmount > 0) {
           const newPaymentDocData = createPaymentDocData(paymentLenderId, paymentBorrowerId, newAmount, newDeadline);
-          const targetPaymentDocRef = paymentCollection.doc(paymentDocData.id);
+          const targetPaymentDocRef = paymentCollection.doc(paymentDocId);
           await targetPaymentDocRef.update(newPaymentDocData);
           await targetPaymentDocRef.collection("loans").add({ loanId });
           return { message: "success" };
@@ -93,7 +98,7 @@ export const createLoan = functions.https.onCall(
           // 負になっているamountを正にする
           // payment.amount = amount
           const newPaymentDocData = createPaymentDocData(paymentBorrowerId, paymentLenderId, -newAmount, newDeadline);
-          const targetPaymentDocRef = paymentCollection.doc(paymentDocData.id);
+          const targetPaymentDocRef = paymentCollection.doc(paymentDocId);
           await targetPaymentDocRef.update(newPaymentDocData);
           await targetPaymentDocRef.collection("loans").add({ loanId });
           return { message: "success" };
