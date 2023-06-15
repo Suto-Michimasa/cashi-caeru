@@ -32,6 +32,12 @@ export const updateLoanIsMarked = async (
   // loans collectionのフィールドの中にあるloanIdをすべて取得
   const loansSnapshot = await paymentCollection.doc(paymentId).collection("loans").get();
   const loanIds = loansSnapshot.docs.map((doc) => doc.data().loanId);
+
+  // Check if loanIds array has any invalid values
+  const hasInvalidIds = loanIds.some((id) => !id || typeof id !== "string");
+  if (hasInvalidIds) {
+    throw new Error("Invalid loanId found");
+  }
   await Promise.all(
     loanIds.map((loanId) =>
       loanCollection.doc(loanId).update({ isMarked: true })
