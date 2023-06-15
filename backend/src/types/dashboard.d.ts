@@ -1,4 +1,4 @@
-interface UserData {
+type UserData = {
   name: string;
   pictureUrl: string;
   amount: number; // 金額
@@ -8,8 +8,6 @@ interface UserData {
 
 export interface DashboardData {
   totalBalance: number;
-  lenPayments: UserData[];
-  borPayments: UserData[];
-  noPayments: UserData[];
+  payments: UserData[];
 }
 

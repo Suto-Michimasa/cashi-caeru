@@ -5,13 +5,6 @@ import { DashboardData, UserData } from "../types/dashboard";
 // ダッシュボードデータ取得
 // ①Users collectionからlineIdと一致するuserを取得する
 // ②Users のsub collection であるpaymentsのフィールドにあるpaymentIdをすべて取得する
-// ③paymentのうちamountsが0のものをnoPaymentsに追加
-// ④amountsが0でないかつpaymentsの中からborrowerIdとuserIdが一致するpaymentsのamountとdeadlineを取得する、
-//     さらにlenderIdと一致するuserをusersテーブルで検索をかけ、一致したuserのnameとpictureUrlを取得する
-//     → borPaymentsに追加
-// ⑤amountsが0でないかつpaymentsの中からlenderIdとuserIdが一致するpaymentsのamountとdeadlineを取得する、
-//     さらにborrowerIdと一致するuserをusersテーブルで検索をかけ、一致したuserのnameとpictureUrlを取得する
-//     → lenPaymentsに追加
 // ⑥totalBalance =  ④のamountsの合計 - ⑤のamountsの合計
 // ⑦lenPayments, borPayments, noPayments, totalBalanceをDashboardDataに格納する
 // ⑧DashboardDataを返す
@@ -29,56 +22,43 @@ export const createDashboardData = async (
   } else {
     return null;
   }
-
   const paymentsQuerySnapshot = await paymentCollection.where("paymentId", "in", paymentIds).get();
   const payments = paymentsQuerySnapshot.docs.map((doc) => doc.data());
-
-  const noPayments: UserData[] = payments.filter((payment) => payment.amount === 0).map((payment) => {
-    const name = payment.borrowerId === userId ? payment.lenderName : payment.borrowerName;
-    const pictureUrl = payment.borrowerId === userId ? payment.lenderPictureUrl : payment.borrowerPictureUrl;
-    return {
-      amount: payment.amount,
-      deadline: payment.deadline,
-      name: name,
-      pictureUrl: pictureUrl,
-    };
-  });
-  const borPayments = payments.filter((payment) => payment.amount !== 0 && payment.borrowerId === userId);
-  const borPaymentsData: UserData[] = (await Promise.all(borPayments.map(async (payment) => {
-    const lenderQuerySnapshot = await userCollection.where("lineId", "==", payment.lenderId).get();
-    if (!lenderQuerySnapshot.empty) {
-      const lender = lenderQuerySnapshot.docs[0].data();
-      return {
+  const lenPayments = payments.filter((payment) => payment.lenderId === userId);
+  const borPayments = payments.filter((payment) => payment.borrowerId === userId);
+  // lenPaymentsは、amountをそのまま使う。borrowerIdを取得して、userCollectionからnameとpictureUrlを取得して、newPaymentsに入れる
+  const newLenPayments = await Promise.all(
+    lenPayments.map(async (payment) => {
+      const userQuerySnapshot = await userCollection.where("lineId", "==", payment.borrowerId).get();
+      const user = userQuerySnapshot.docs[0].data();
+      const userData: UserData = {
+        name: user.name,
+        pictureUrl: user.pictureUrl,
         amount: payment.amount,
         deadline: payment.deadline,
-        name: lender.name,
-        pictureUrl: lender.pictureUrl,
       };
-    }
-    return undefined;
-  }))).filter((payment): payment is UserData => payment !== undefined);
-
-  const lenPayments = payments.filter((payment) => payment.amount !== 0 && payment.lenderId === userId);
-  const lenPaymentsData: UserData[] = (await Promise.all(lenPayments.map(async (payment) => {
-    const borrowerQuerySnapshot = await userCollection.where("lineId", "==", payment.borrowerId).get();
-    if (!borrowerQuerySnapshot.empty) {
-      const borrower = borrowerQuerySnapshot.docs[0].data();
-      return {
-        amount: payment.amount,
+      return userData;
+    })
+  );
+  // borPaymentsは、amountをマイナスにしてnewPaymentsに入れる．lenderIdを取得して、userCollectionからnameとpictureUrlを取得して、newPaymentsに入れる
+  const newBorPayments = await Promise.all(
+    borPayments.map(async (payment) => {
+      const userQuerySnapshot = await userCollection.where("lineId", "==", payment.lenderId).get();
+      const user = userQuerySnapshot.docs[0].data();
+      const userData: UserData = {
+        name: user.name,
+        pictureUrl: user.pictureUrl,
+        amount: -payment.amount,
         deadline: payment.deadline,
-        name: borrower.name,
-        pictureUrl: borrower.pictureUrl,
       };
-    }
-    return undefined;
-  }))).filter((payment): payment is UserData => payment !== undefined);
-
+      return userData;
+    })
+  );
+  const newPayments = newLenPayments.concat(newBorPayments);
   const totalBalance = lenPayments.reduce((sum, payment) => sum + payment.amount, 0) - borPayments.reduce((sum, payment) => sum + payment.amount, 0);
   const dashboardData: DashboardData = {
     totalBalance: totalBalance,
-    lenPayments: lenPaymentsData,
-    borPayments: borPaymentsData,
-    noPayments: noPayments,
+    payments: newPayments,
   };
   return dashboardData;
 };
