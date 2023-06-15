@@ -1,6 +1,6 @@
 import { functions } from "./plugins/firebase";
 import { loanCollection, paymentCollection, userCollection } from "./const/collection";
-import { createUserDocumentFunction, createLoanDocData, createPaymentDocData, updateLoanIsMarked } from "./functions";
+import { createUserDocumentFunction, createLoanDocData, createPaymentDocData, updateLoanIsMarked, createDashboardData } from "./functions";
 
 import { AddLoanRequestBody } from "./types/loan";
 import { CreateUserPayload } from "./types/user";
@@ -101,5 +101,16 @@ export const completePayment = functions.https.onCall(
     const { paymentId } = data;
     await updateLoanIsMarked(paymentId);
     return { message: "success" };
+  }
+);
+
+// ********************
+// ダッシュボードデータ取得
+// ********************
+export const getDashboardData = functions.https.onCall(
+  async (data: { userId: string }) => {
+    const { userId } = data;
+    const dashboardData = await createDashboardData(userId);
+    return dashboardData;
   }
 );
