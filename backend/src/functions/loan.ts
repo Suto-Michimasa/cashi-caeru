@@ -1,3 +1,4 @@
+import { loanCollection } from "../const/collection";
 import { Loan } from "../types/loan";
 import { Timestamp } from "firebase-admin/firestore";
 
@@ -6,22 +7,19 @@ export type LoanWithoutId = Omit<Loan, "id">;
 
 // 決済データからFirestoreに保存するデータを作成する
 export const createLoanDocData = (
-  lenderId: string,
-  borrowerId: string,
+  creatorId: string,
   description: string,
   amount: number,
   deadline: string | Date,
 ): LoanWithoutId => {
   // deadlineはDate型で受け取り、Timestamp型に変換する
-
   // If deadline is a string, convert it to a Date object
   if (typeof deadline === "string") {
     deadline = new Date(deadline);
   }
   return {
-    isMarked: false,
-    lenderId,
-    borrowerId,
+    status: "wait",
+    creatorId,
     description,
     amount,
     deadline: Timestamp.fromDate(deadline),
@@ -30,3 +28,9 @@ export const createLoanDocData = (
   };
 };
 
+export const updateLoan = async ( loanId: string ) => {
+  await loanCollection.doc(loanId).update({
+    status: "processing",
+    updatedAt: Timestamp.fromDate(new Date()),
+  });
+};
