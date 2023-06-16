@@ -1,4 +1,5 @@
-import { AddIcon, SearchIcon } from '@chakra-ui/icons';
+import React from 'react';
+import { AddIcon } from '@chakra-ui/icons';
 import {
   Box,
   Flex,
@@ -8,7 +9,12 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { format } from 'date-fns';
+import { DashboardData } from '../types';
+import { timestampToM_D } from '@/utils/timestamp';
+
+type Props = {
+  dashboardData: DashboardData;
+}
 
 const mainColorSelector = (amount: number) => {
   if (amount > 0) return '#1487E2';
@@ -22,30 +28,7 @@ const bgColorSelector = (amount: number) => {
   else return 'rgba(0, 0, 0, 0.1)';
 };
 
-export const TopPage = () => {
-  const mockData = {
-    totalBalance: 1000,
-    lenPayments: [
-      {
-        name: '須藤',
-        pictureUrl: './icon.jpg',
-        amount: '50000',
-        deadLine: new Date(2023, 7, 20),
-      },
-      {
-        name: '古賀',
-        pictureUrl: './icon.jpg',
-        amount: '-10000000',
-        deadLine: new Date(2023, 7, 20),
-      },
-      {
-        name: '古谷',
-        pictureUrl: './icon.jpg',
-        amount: '0',
-        deadLine: new Date(2023, 7, 20),
-      },
-    ],
-  };
+export const TopPageComponent: React.FC<Props> = ({ dashboardData }) => {
   return (
     <VStack>
       <HStack width={'80vw'} p={'16px 0px'}>
@@ -58,14 +41,11 @@ export const TopPage = () => {
         >
           <Text m={'0px'}>合計収支</Text>
           <Spacer />
-          <Text m={'0px'}>
-            {Number(mockData.totalBalance) < 0 ? 'ー' : '＋'}
-          </Text>
-          <Text m={'0px'}>{mockData.totalBalance.toLocaleString()}</Text>
+          <Text m={'0px'}>{dashboardData.totalBalance.toLocaleString()}</Text>
           <Text m={'0px'}>円</Text>
         </HStack>
       </HStack>
-      {mockData.lenPayments.map((element, index) => (
+      {dashboardData.payments.map((element, index) => (
         <Box
           key={index}
           borderRadius={'20px'}
@@ -79,7 +59,7 @@ export const TopPage = () => {
         >
           <HStack p={'4px 0px'}>
             <Image
-              src="./icon.jpg"
+              src={element.pictureUrl}
               boxSize={'56px'}
               borderRadius={'50%'}
               p={'12px'}
@@ -95,7 +75,7 @@ export const TopPage = () => {
                 fontWeight={'bold'}
               >
                 <Text m={'0px'}>
-                  {Number(element.amount) < 0 ? 'ー' : '＋'}
+                  {Number(element.amount) < 0 ? '-' : '+'}
                 </Text>
                 <Spacer />
                 <Text m={'0px'}>
@@ -110,7 +90,7 @@ export const TopPage = () => {
                   color={mainColorSelector(Number(element.amount))}
                   m={'0px'}
                 >
-                  {format(element.deadLine, 'M/d')}
+                  {timestampToM_D(element.deadline)}
                 </Text>
               </HStack>
             </VStack>
