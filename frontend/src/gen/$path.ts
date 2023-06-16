@@ -2,6 +2,9 @@ export const pagesPath = {
   "$404": {
     $url: (url?: { hash?: string }) => ({ pathname: '/404' as const, hash: url?.hash })
   },
+  "register": {
+    $url: (url?: { hash?: string }) => ({ pathname: '/register' as const, hash: url?.hash })
+  },
   "top": {
     $url: (url?: { hash?: string }) => ({ pathname: '/top' as const, hash: url?.hash })
   },

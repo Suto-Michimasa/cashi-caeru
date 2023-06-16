@@ -1,9 +1,9 @@
-import Head from "next/head";
-import styles from "@/styles/Home.module.css";
-import { useLiff } from "@/middleware/LineProvider";
-import { Box, Button, Image } from "@chakra-ui/react"
-import { createLoan, completePayment } from "@/features/loans/functions";
-import { requestLoanData } from "../models";
+import Head from 'next/head';
+import styles from '@/styles/Home.module.css';
+import { useLiff } from '@/middleware/LineProvider';
+import { Box, Button, Image } from '@chakra-ui/react';
+import { createLoan, completePayment } from '@/features/loans/functions';
+import { requestLoanData } from '../models';
 
 export const DashboardPage = () => {
   const { liff, error: liffError } = useLiff();
@@ -11,12 +11,18 @@ export const DashboardPage = () => {
   const userName = idToken?.name;
   const picture = idToken?.picture;
   // 以下テスト用
+  (async () => {
+    const profile = await liff?.getProfile();
+    const userId = profile?.userId || '';
+    console.log(userId);
+  })();
+
   const onClick = () => {
     createLoan(requestLoanData);
   };
 
   const onClick2 = () => {
-    completePayment("frqZTvdBCG0xCXv0YUHF");
+    completePayment('frqZTvdBCG0xCXv0YUHF');
   };
   return (
     <div>
