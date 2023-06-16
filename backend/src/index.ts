@@ -107,6 +107,8 @@ export const updateLoan = functions.https.onCall(
         const userDocId = userDocRef.docs[0].id;
         await userCollection.doc(userDocId).collection("payments").add({ paymentDocId });
       };
+      // loansのstatusをprocessingに更新
+      await loanCollection.doc(loanId).update({ status: "processing" });
       // Userテーブルにpaymentsを追加
       await updateUserPaymentCollection(creatorId, newPaymentDocId);
       await updateUserPaymentCollection(partnerId, newPaymentDocId);
@@ -123,6 +125,8 @@ export const updateLoan = functions.https.onCall(
       const newPaymentDocData = createPaymentDocData(creatorId, partnerId, newAmount, newDeadline);
       await targetPaymentDocRef.update(newPaymentDocData);
       await targetPaymentDocRef.collection("loans").add({ loanId });
+      // loansのstatusをprocessingに更新
+      await loanCollection.doc(loanId).update({ status: "processing" });
       return { message: "success" };
     }
   }
