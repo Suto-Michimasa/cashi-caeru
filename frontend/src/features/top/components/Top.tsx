@@ -2,6 +2,7 @@ import React from 'react';
 import { AddIcon } from '@chakra-ui/icons';
 import {
   Box,
+  Button,
   Flex,
   HStack,
   Image,
@@ -14,7 +15,7 @@ import { timestampToM_D } from '@/utils/timestamp';
 
 type Props = {
   dashboardData: DashboardData;
-}
+};
 
 const mainColorSelector = (amount: number) => {
   if (amount > 0) return '#1487E2';
@@ -74,9 +75,7 @@ export const TopPageComponent: React.FC<Props> = ({ dashboardData }) => {
                 fontSize={'28px'}
                 fontWeight={'bold'}
               >
-                <Text m={'0px'}>
-                  {Number(element.amount) < 0 ? '-' : '+'}
-                </Text>
+                <Text m={'0px'}>{Number(element.amount) < 0 ? '-' : '+'}</Text>
                 <Spacer />
                 <Text m={'0px'}>
                   {Math.abs(Number(element.amount)).toLocaleString()}
@@ -97,17 +96,17 @@ export const TopPageComponent: React.FC<Props> = ({ dashboardData }) => {
           </HStack>
         </Box>
       ))}
-      <Box
-        bgColor={'#2196F3'}
+      <Button
+        position={'fixed'}
+        right={'20px'}
+        bottom={'20px'}
+        color={'white'}
+        bg={'#1487E2'}
+        boxSize={'56px'}
         borderRadius={'50%'}
-        position={'absolute'}
-        right={'16px'}
-        bottom={'16px'}
       >
-        <Flex>
-          <AddIcon color={'white'} fontSize={'24px'} p={'24px'} />
-        </Flex>
-      </Box>
+        <AddIcon />
+      </Button>
     </VStack>
   );
 };
