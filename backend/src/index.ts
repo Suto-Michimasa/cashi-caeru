@@ -1,4 +1,4 @@
-import { functions } from "./plugins/firebase";
+import { config, functions } from "./plugins/firebase";
 import { loanCollection, paymentCollection, userCollection } from "./const/collection";
 import { createUserDocumentFunction, createLoanDocData, createPaymentDocData, createDashboardData, finishLoan } from "./functions";
 
@@ -7,6 +7,10 @@ import { CreateUserPayload } from "./types/user";
 import { PaymentRequestBody } from "./types/payment";
 import { timestampToDate } from "./utils/timestamp";
 
+import { generateMessage } from "./functions/linebot";
+import axios from "axios";
+import * as corsLib from "cors";
+const cors = corsLib();
 // ********************
 // ユーザ作成
 // - line_idが存在する場合には作成しない
@@ -149,3 +153,33 @@ export const getDashboardData = functions.https.onCall(
     return dashboardData;
   }
 );
+export const sendReminder = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    const creditorName = req.body.creditorName; // 債権者の名前
+    const eventName = req.body.eventName; // イベント名
+    const daysRemaining = req.body.daysRemaining; // 残り日数
+    // const debtorId = req.body.debtorId; // 債務者のLINEユーザーID
+    console.log("ikkaime");
+    const text = await generateMessage(creditorName, eventName, daysRemaining); // メッセージを生成する関数
+    const lineMessage = {
+      "to": "Ucd6450f6f50b65dfa706c18012015039",
+      "messages": [
+        {
+          "type": "text",
+          "text": text.content,
+        },
+      ],
+    };
+    console.log("text", text);
+
+    const LINE_MESSAGING_API = "https://api.line.me/v2/bot/message/push";
+    const LINE_HEADER = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${config.line.channel_access_token}`,
+    };
+
+    await axios.post(LINE_MESSAGING_API, lineMessage, { headers: LINE_HEADER });
+    // res.sendStatus(200);
+    return;
+  });
+});
