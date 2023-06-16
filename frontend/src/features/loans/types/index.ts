@@ -9,3 +9,8 @@ export type UpdateLoanRequestBody = {
   partnerId: string; // もう1人のline_id
   loanId: string; // loanのid
 }
+export type SendReminderRequestBody = {
+  eventName: string; // 貸借イベント名
+  creditorName: string; // 債権者の名前
+  daysRemaining: number; // 返済猶予期日
+}
