@@ -3,6 +3,7 @@ import styles from "@/styles/Home.module.css";
 import { useLiff } from "@/middleware/LineProvider";
 import { Box, Button, Image } from "@chakra-ui/react"
 import { createLoan, completePayment } from "@/features/loans/functions";
+import { getDashboardData } from "../functions";
 import { requestLoanData } from "../models";
 
 export const DashboardPage = () => {
@@ -17,6 +18,10 @@ export const DashboardPage = () => {
 
   const onClick2 = () => {
     completePayment("frqZTvdBCG0xCXv0YUHF");
+  };
+
+  const onClick3 = () => {
+    getDashboardData("Uc6ed8bbaaa81cea19b12f98d022c86de");
   };
   return (
     <div>
@@ -41,6 +46,7 @@ export const DashboardPage = () => {
             <Box mt={10}>
               <Button onClick={onClick}>テスト</Button>
               <Button onClick={onClick2}>決済完了ボタン</Button>
+              <Button onClick={onClick3}>ダッシュボードデータ取得</Button>
             </Box>
           </div>
         )}

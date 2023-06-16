@@ -1,6 +1,6 @@
 import { functions } from "./plugins/firebase";
 import { loanCollection, paymentCollection, userCollection } from "./const/collection";
-import { createUserDocumentFunction, createLoanDocData, createPaymentDocData, updateLoanIsMarked } from "./functions";
+import { createUserDocumentFunction, createLoanDocData, createPaymentDocData, updateLoanIsMarked, createDashboardData } from "./functions";
 
 import { AddLoanRequestBody } from "./types/loan";
 import { CreateUserPayload } from "./types/user";
@@ -43,6 +43,7 @@ export const createLoan = functions.https.onCall(
     const loanDocRef = await loanCollection.add(loanDocData);
     const loanId = loanDocRef.id;
 
+    // 既にpaymentsに貸し借りが存在しているかを確認
     const findPaymentDoc = async () => {
       const snapshot = await paymentCollection
         .where("lenderId", "==", lenderId || borrowerId)
@@ -56,20 +57,25 @@ export const createLoan = functions.https.onCall(
     const paymentDocData = paymentDoc?.data();
     const paymentDocId = paymentDoc?.id;
 
-    const updateUserLoanCollection = async (userId: string, loanId: string) => {
-      const userDocRef = await userCollection.where("lineId", "==", userId).get();
-      const userDocId = userDocRef.docs[0].id;
-      await userCollection.doc(userDocId).collection("loans").add({ loanId });
-    };
-
     if (!paymentDocData || !paymentDocId) {
+      // paymentsに貸し借りが存在していない場合は新規作成
+      // loansにデータを追加
       const paymentDocData = createPaymentDocData(lenderId, borrowerId, amount, deadline);
       const paymentDocRef = await paymentCollection.add(paymentDocData);
-      await paymentDocRef.collection("loans").add({ loanId });
-      await updateUserLoanCollection(lenderId, loanId);
-      await updateUserLoanCollection(borrowerId, loanId);
+      const paymentDocId = paymentDocRef.id;
+      await paymentDocRef.collection("loans").add({ loanId: loanId });
+
+      const updateUserPaymentCollection = async (userId: string, paymentDocId: string) => {
+        const userDocRef = await userCollection.where("lineId", "==", userId).get();
+        const userDocId = userDocRef.docs[0].id;
+        await userCollection.doc(userDocId).collection("payments").add({ paymentDocId });
+      };
+      console.log("lenderId", lenderId);
+      await updateUserPaymentCollection(lenderId, paymentDocId);
+      await updateUserPaymentCollection(borrowerId, paymentDocId);
       return { message: "success" };
     } else {
+      // 既にpaymentsに貸し借りが存在している場合
       const { amount: paymentAmount, lenderId: paymentLenderId, borrowerId: paymentBorrowerId } = paymentDocData;
       const newDeadline = deadline;
       const newAmount = paymentAmount + amount;
@@ -101,5 +107,16 @@ export const completePayment = functions.https.onCall(
     const { paymentId } = data;
     await updateLoanIsMarked(paymentId);
     return { message: "success" };
+  }
+);
+
+// ********************
+// ダッシュボードデータ取得
+// ********************
+export const getDashboardData = functions.https.onCall(
+  async (data: { userId: string }) => {
+    const { userId } = data;
+    const dashboardData = await createDashboardData(userId);
+    return dashboardData;
   }
 );
