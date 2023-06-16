@@ -18,7 +18,7 @@ export const ConfirmPage = () => {
 
   return (
     <Box>
-      <Link href={'./top'}>
+      <Link href={'/top'}>
         <Text m={'0px'} p={'12px'} fontSize={'20px'} color={'#777777'}>
           {'< 戻る'}
         </Text>

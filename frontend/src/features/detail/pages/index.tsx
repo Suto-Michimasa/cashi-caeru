@@ -10,6 +10,7 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { Timestamp } from 'firebase-admin/firestore';
+import { useRouter } from 'next/router';
 
 export const DetailPage = () => {
   type getDetail = {
@@ -53,6 +54,8 @@ export const DetailPage = () => {
   };
 
   const now = new Date();
+
+  const router = useRouter();
 
   return (
     <VStack>
@@ -110,6 +113,7 @@ export const DetailPage = () => {
           m={'20px'}
           type="submit"
           h={12}
+          onClick={() => router.push('/confirm/' + router.query.paymentId)}
         >
           <Text color={'white'} fontSize={'24px'} p={'8px'}>
             決済確認
