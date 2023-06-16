@@ -2,7 +2,7 @@ import Head from 'next/head';
 
 import { getMainLayout } from '@/components/Layout';
 import { NextPageWithLayout } from '@/pages/_app';
-import { TopPage } from '@/features/top/pages';
+import { ConfirmPage } from '@/features/confirm/pages';
 
 const Page: NextPageWithLayout = () => {
   return (
@@ -11,7 +11,7 @@ const Page: NextPageWithLayout = () => {
         <title>貸しカエル🐸</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <TopPage />
+      <ConfirmPage />
     </>
   );
 };
