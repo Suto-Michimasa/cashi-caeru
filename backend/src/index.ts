@@ -39,7 +39,8 @@ export const createLoan = functions.https.onCall(
   async (data: AddLoanRequestBody) => {
     const { creatorId, description, amount, deadline } = data;
     const loanDocData = createLoanDocData(creatorId, description, amount, deadline);
-    const loanDocRef = await loanCollection.add(loanDocData);
+    await loanCollection.add(loanDocData);
+    // const loanDocRef = await loanCollection.add(loanDocData);
     // 作成したloanのidを取得
     // const loanId = loanDocRef.id;
     // 選択した友達に送るURLを作成
