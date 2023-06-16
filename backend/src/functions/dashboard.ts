@@ -1,5 +1,6 @@
 import { userCollection, paymentCollection } from "../const/collection";
 import { DashboardData, UserData } from "../types/dashboard";
+import { Payment } from "../types/payment";
 
 // ********************
 // ダッシュボードデータ取得
@@ -18,14 +19,26 @@ export const createDashboardData = async (
   if (!userQuerySnapshot.empty) {
     const userRef = userQuerySnapshot.docs[0].ref;
     const paymentsQuerySnapshot = await userRef.collection("payments").get();
-    paymentIds = paymentsQuerySnapshot.docs.map((doc) => doc.data().paymentId);
+    paymentIds = paymentsQuerySnapshot.docs.map((doc) => doc.data().paymentDocId);
   } else {
     return null;
   }
-  const paymentsQuerySnapshot = await paymentCollection.where("paymentId", "in", paymentIds).get();
-  const payments = paymentsQuerySnapshot.docs.map((doc) => doc.data());
-  const lenPayments = payments.filter((payment) => payment.lenderId === userId);
-  const borPayments = payments.filter((payment) => payment.borrowerId === userId);
+  // paymentIdsを使って、payments collectionからドキュメントIDと一致するドキュメントを取得する
+  if (paymentIds.length === 0) {
+    return null;
+  }
+  const paymentsProcess = paymentIds.map(async (paymentId) => {
+    const paymentQuerySnapshot = await paymentCollection.doc(paymentId).get();
+    const paymentData = paymentQuerySnapshot.data();
+    return paymentData ? paymentData as Payment : null;
+  });
+  const payments: (Payment | null)[] = await Promise.all(paymentsProcess);
+  const validPayments = payments.filter((payment) => payment !== null) as Payment[];
+  if (validPayments.length === 0) {
+    return null;
+  }
+  const lenPayments = validPayments.filter((payment) => payment.lenderId === userId);
+  const borPayments = validPayments.filter((payment) => payment.borrowerId === userId);
   // lenPaymentsは、amountをそのまま使う。borrowerIdを取得して、userCollectionからnameとpictureUrlを取得して、newPaymentsに入れる
   const newLenPayments = await Promise.all(
     lenPayments.map(async (payment) => {
