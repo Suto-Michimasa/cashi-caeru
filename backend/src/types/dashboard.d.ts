@@ -1,15 +1,13 @@
 import { Timestamp } from "./firebase";
 
-type UserData = {
+interface UserData {
   name: string;
   pictureUrl: string;
   amount: number; // 金額
   deadline: Timestamp // 締切
 }
 
-
-export interface DashboardData {
+interface DashboardData {
   totalBalance: number;
   payments: UserData[];
 }
-

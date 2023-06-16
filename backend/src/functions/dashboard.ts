@@ -37,41 +37,34 @@ export const createDashboardData = async (
   if (validPayments.length === 0) {
     return null;
   }
-  const lenPayments = validPayments.filter((payment) => payment.lenderId === userId);
-  const borPayments = validPayments.filter((payment) => payment.borrowerId === userId);
-  // lenPaymentsは、amountをそのまま使う。borrowerIdを取得して、userCollectionからnameとpictureUrlを取得して、newPaymentsに入れる
-  const newLenPayments = await Promise.all(
-    lenPayments.map(async (payment) => {
-      const userQuerySnapshot = await userCollection.where("lineId", "==", payment.borrowerId).get();
-      const user = userQuerySnapshot.docs[0].data();
-      const userData: UserData = {
-        name: user.name,
-        pictureUrl: user.pictureUrl,
-        amount: payment.amount,
-        deadline: payment.deadline,
-      };
-      return userData;
-    })
-  );
-  // borPaymentsは、amountをマイナスにしてnewPaymentsに入れる．lenderIdを取得して、userCollectionからnameとpictureUrlを取得して、newPaymentsに入れる
-  const newBorPayments = await Promise.all(
-    borPayments.map(async (payment) => {
-      const userQuerySnapshot = await userCollection.where("lineId", "==", payment.lenderId).get();
-      const user = userQuerySnapshot.docs[0].data();
-      const userData: UserData = {
-        name: user.name,
-        pictureUrl: user.pictureUrl,
-        amount: -payment.amount,
-        deadline: payment.deadline,
-      };
-      return userData;
-    })
-  );
-  const newPayments = newLenPayments.concat(newBorPayments);
-  const totalBalance = lenPayments.reduce((sum, payment) => sum + payment.amount, 0) - borPayments.reduce((sum, payment) => sum + payment.amount, 0);
+  // paymentsの整形。deadlineとamountはそのまま使う。
+  // creatorId, partnerIdのうち自分でない方を取得して、users collectionからnameとpictureUrlを取得する。
+  const newPayments = validPayments.map(async (payment) => {
+    const { creatorId, partnerId } = payment;
+    const targetId = creatorId === userId ? partnerId : creatorId;
+    const userQuerySnapshot = await userCollection.where("lineId", "==", targetId).get();
+    const userData = userQuerySnapshot.docs[0].data();
+    const { name, pictureUrl } = userData;
+    return {
+      deadline: payment.deadline,
+      amount: payment.amount,
+      name: name,
+      pictureUrl: pictureUrl,
+    } as UserData;
+  });
+
+  const totalBalance = validPayments.reduce((acc, payment) => {
+    if (payment.creatorId === userId) {
+      return acc + payment.amount;
+    } else {
+      return acc - payment.amount;
+    }
+  }, 0);
+
+
   const dashboardData: DashboardData = {
     totalBalance: totalBalance,
-    payments: newPayments,
+    payments: await Promise.all(newPayments),
   };
   return dashboardData;
 };
