@@ -4,9 +4,11 @@ import { loanCollection, paymentCollection } from "../const/collection";
 
 export type PaymentWithoutId = Omit<Payment, "paymentId">;
 
+
+// creatorIdとpartnerIdとlenderIdとborrowerIdの4つの引数を受け取る
 export const createPaymentDocData = (
-  lenderId: string,
-  borrowerId: string,
+  creatorId: string,
+  partnerId: string,
   amount: number,
   deadline: string | Date,
 ): PaymentWithoutId => {
@@ -15,8 +17,8 @@ export const createPaymentDocData = (
     deadline = new Date(deadline);
   }
   return {
-    lenderId,
-    borrowerId,
+    creatorId,
+    partnerId,
     amount,
     deadline: Timestamp.fromDate(deadline),
     createdAt: Timestamp.fromDate(new Date()),
@@ -26,7 +28,7 @@ export const createPaymentDocData = (
 };
 
 
-export const updateLoanIsMarked = async (
+export const finishLoan = async (
   paymentId: string
 ): Promise<void> => {
   // loans collectionのフィールドの中にあるloanIdをすべて取得
@@ -40,7 +42,7 @@ export const updateLoanIsMarked = async (
   }
   await Promise.all(
     loanIds.map((loanId) =>
-      loanCollection.doc(loanId).update({ isMarked: true })
+      loanCollection.doc(loanId).update({ status: "finish" })
     )
   );
   // paymentのamountを0、updatedAtを現在時刻にする
