@@ -5,6 +5,7 @@ import { createUserDocumentFunction, createLoanDocData, createPaymentDocData, cr
 import { AddLoanRequestBody, UpdateLoanRequestBody } from "./types/loan";
 import { CreateUserPayload } from "./types/user";
 import { PaymentRequestBody } from "./types/payment";
+import { timestampToDate } from "./utils/timestamp";
 
 // ********************
 // ユーザ作成
@@ -48,7 +49,6 @@ export const createLoan = functions.https.onCall(
   }
 );
 
-// TODO: lenderIdとpartnerIdを検索して、修正
 // ********************
 // 取引相手を追加・paymentの作成
 // - paymentsに既に貸し借りが存在しているかを確認。存在していない場合は新規作成
@@ -92,7 +92,10 @@ export const updateLoan = functions.https.onCall(
     if (!paymentDocData || !paymentDocId) {
       // paymentsに貸し借りが存在していない場合は新規作成
       // loansにデータを追加
-      const paymentDocData = createPaymentDocData(creatorId, partnerId, amount, deadline);
+      console.log("deadline", deadline);
+      const newDeadline = timestampToDate(deadline);
+      const paymentDocData = createPaymentDocData(creatorId, partnerId, amount, newDeadline);
+      console.log("newdeadline", newDeadline);
       const paymentDocRef = await paymentCollection.add(paymentDocData);
       const newPaymentDocId = paymentDocRef.id;
       await paymentDocRef.collection("loans").add({ loanId: loanId });
@@ -110,7 +113,8 @@ export const updateLoan = functions.https.onCall(
       // 既にpaymentsに貸し借りが存在している場合は、amount, deadlineを更新
       // amountは、
       const { amount: paymentAmount, creatorId: creatorId, partnerId: partnerId } = paymentDocData;
-      const newDeadline = deadline;
+      const newDeadline = timestampToDate(deadline);
+      console.log("newDeadline", newDeadline);
       const newAmount = paymentAmount + amount;
 
       const targetPaymentDocRef = paymentCollection.doc(paymentDocId);

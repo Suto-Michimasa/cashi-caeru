@@ -1,9 +1,9 @@
-import Head from 'next/head';
-import styles from '@/styles/Home.module.css';
-import { useLiff } from '@/middleware/LineProvider';
-import { Box, Button, Image } from '@chakra-ui/react';
-import { createLoan, completePayment } from '@/features/loans/functions';
-import { requestLoanData } from '../models';
+import Head from "next/head";
+import styles from "@/styles/Home.module.css";
+import { useLiff } from "@/middleware/LineProvider";
+import { Box, Button, Image } from "@chakra-ui/react"
+import { createLoan, completePayment, updateLoan } from "@/features/loans/functions";
+import { requestLoanData } from "../models";
 
 export const DashboardPage = () => {
   const { liff, error: liffError } = useLiff();
@@ -21,9 +21,20 @@ export const DashboardPage = () => {
     createLoan(requestLoanData);
   };
 
+
   const onClick2 = () => {
     completePayment('frqZTvdBCG0xCXv0YUHF');
   };
+
+  const partnerId = "Ub8f1889965e2fdf915300f6c671d4420";
+  const loanId = "HNwUrN7VZHWVQ5k9ozYq";
+  const onClick3 = () => {
+    updateLoan({
+      partnerId: partnerId,
+      loanId: loanId,
+    });
+  };
+
   return (
     <div>
       <Head>
@@ -47,6 +58,7 @@ export const DashboardPage = () => {
             <Box mt={10}>
               <Button onClick={onClick}>テスト</Button>
               <Button onClick={onClick2}>決済完了ボタン</Button>
+              <Button onClick={onClick3}>決済更新ボタン</Button>
             </Box>
           </div>
         )}
