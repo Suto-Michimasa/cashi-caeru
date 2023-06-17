@@ -1,3 +1,8 @@
+export type GetLoanDetailRequestBody = {
+  paymentId: string; // loanのid
+  userId: string; // line_id
+}
+
 export type CreateLoanRequestBody = {
   creatorId: string; // 決済を作成した人のline_id
   description: string; // 決済名

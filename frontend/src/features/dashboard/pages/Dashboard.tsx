@@ -11,23 +11,17 @@ export const DashboardPage = () => {
   const userName = idToken?.name;
   const picture = idToken?.picture;
   // 以下テスト用
-  (async () => {
-    const profile = await liff?.getProfile();
-    const userId = profile?.userId || '';
-    console.log(userId);
-  })();
 
   const onClick = () => {
     createLoan(requestLoanData);
   };
-
 
   const onClick2 = () => {
     completePayment('frqZTvdBCG0xCXv0YUHF');
   };
 
   const onClick3 = () => {
-    sendReminder({eventName: "古谷", creditorName: "古賀", daysRemaining: 4});
+    sendReminder({ eventName: "古谷", creditorName: "古賀", daysRemaining: 4 });
   };
   return (
     <div>
@@ -50,7 +44,7 @@ export const DashboardPage = () => {
               alt={'profile image'}
             />
             <Box mt={10}>
-              <Button onClick={onClick}>テスト</Button>
+              <Button onClick={onClick}>決済追加ボタン</Button>
               <Button onClick={onClick2}>決済完了ボタン</Button>
               <Button onClick={onClick3}>古賀のちんちん大きくなるボタン</Button>
             </Box>
