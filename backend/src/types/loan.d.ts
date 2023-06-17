@@ -23,3 +23,23 @@ interface UpdateLoanRequestBody {
   loanId: string; // 貸し借りのid
   partnerId: string; // 相手のline_id
 }
+
+interface GetLoansDetailRequestBody {
+  userId: string; // ユーザーのline_id
+  paymentId: string; // 貸し借りのid
+}
+
+interface LoanDescription {
+  loanId: string; // 貸し借りのid
+  description: string; // 決済名
+  amount: number; // 金額
+  createdAt: Date; // 作成日
+}
+
+interface LoansDetail {
+  name: string; // 相手の名前
+  pictureUrl: string; // 相手のプロフィール画像
+  amount: number; // 金額
+  deadline: Date; // 締切
+  loans: LoanDescription[]; // 貸し借りの詳細
+}

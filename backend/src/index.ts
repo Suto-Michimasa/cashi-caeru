@@ -1,8 +1,8 @@
 import { config, functions } from "./plugins/firebase";
 import { loanCollection, paymentCollection, userCollection } from "./const/collection";
-import { createUserDocumentFunction, createLoanDocData, createPaymentDocData, createDashboardData, finishLoan } from "./functions";
+import { createUserDocumentFunction, createLoanDocData, createPaymentDocData, createDashboardData, finishLoan, getLoansDetail } from "./functions";
 
-import { AddLoanRequestBody, UpdateLoanRequestBody } from "./types/loan";
+import { AddLoanRequestBody, UpdateLoanRequestBody, GetLoansDetailRequestBody } from "./types/loan";
 import { CreateUserPayload } from "./types/user";
 import { PaymentRequestBody } from "./types/payment";
 import { timestampToDate } from "./utils/timestamp";
@@ -96,10 +96,8 @@ export const updateLoan = functions.https.onCall(
     if (!paymentDocData || !paymentDocId) {
       // paymentsに貸し借りが存在していない場合は新規作成
       // loansにデータを追加
-      console.log("deadline", deadline);
       const newDeadline = timestampToDate(deadline);
       const paymentDocData = createPaymentDocData(creatorId, partnerId, amount, newDeadline);
-      console.log("newdeadline", newDeadline);
       const paymentDocRef = await paymentCollection.add(paymentDocData);
       const newPaymentDocId = paymentDocRef.id;
       await paymentDocRef.collection("loans").add({ loanId: loanId });
@@ -109,6 +107,8 @@ export const updateLoan = functions.https.onCall(
         const userDocId = userDocRef.docs[0].id;
         await userCollection.doc(userDocId).collection("payments").add({ paymentDocId });
       };
+      // loansのstatusをprocessingに更新
+      await loanCollection.doc(loanId).update({ status: "processing" });
       // Userテーブルにpaymentsを追加
       await updateUserPaymentCollection(creatorId, newPaymentDocId);
       await updateUserPaymentCollection(partnerId, newPaymentDocId);
@@ -125,6 +125,8 @@ export const updateLoan = functions.https.onCall(
       const newPaymentDocData = createPaymentDocData(creatorId, partnerId, newAmount, newDeadline);
       await targetPaymentDocRef.update(newPaymentDocData);
       await targetPaymentDocRef.collection("loans").add({ loanId });
+      // loansのstatusをprocessingに更新
+      await loanCollection.doc(loanId).update({ status: "processing" });
       return { message: "success" };
     }
   }
@@ -183,3 +185,13 @@ export const sendReminder = functions.https.onRequest((req, res) => {
     return;
   });
 });
+
+// ********************
+// 貸し借り詳細データ取得
+// ********************
+export const getLoanDetailData = functions.https.onCall(
+  async (req: GetLoansDetailRequestBody) => {
+    const loanDetailData = await getLoansDetail(req);
+    return loanDetailData;
+  }
+);
