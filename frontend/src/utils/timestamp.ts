@@ -1,5 +1,8 @@
 import { Timestamp } from "@firebase/firestore";
 
+
+export type TimestampType = Timestamp | { _seconds: number, _nanoseconds: number };
+
 export const dateToTimestamp = Timestamp.fromDate;
 
 export const createTimestamp = (seconds: number, nanoseconds: number) => {
@@ -11,7 +14,8 @@ export const createTimestamp = (seconds: number, nanoseconds: number) => {
   }
 };
 
-export const timestampToDate = (timestamp: any) => {
+export const timestampToDate = (timestamp: TimestampType) => {
+  console.log(timestamp instanceof Timestamp);
   if (timestamp instanceof Timestamp) {
     return timestamp.toDate();
   } else if (timestamp._seconds !== undefined && timestamp._nanoseconds !== undefined) {
@@ -24,7 +28,7 @@ export const timestampToDate = (timestamp: any) => {
   return null;
 }
 
-export const timestampToM_D = (timestamp: any) => {
+export const timestampToM_D = (timestamp: TimestampType) => {
   const date = timestampToDate(timestamp);
   if (date) {
     return `${date.getMonth() + 1}/${date.getDate()}`;

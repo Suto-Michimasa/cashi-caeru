@@ -1,4 +1,4 @@
-import { timestampToDate, timestampToM_D } from '@/utils/timestamp';
+import { TimestampType, timestampToDate, timestampToM_D } from '@/utils/timestamp';
 import {
   Box,
   Button,
@@ -7,7 +7,6 @@ import {
   Spacer,
   Text,
   VStack,
-  Flex,
 } from '@chakra-ui/react';
 import { Timestamp } from 'firebase-admin/firestore';
 import { useRouter } from 'next/router';
@@ -15,13 +14,13 @@ import { useRouter } from 'next/router';
 export const DetailPage = () => {
   type getDetail = {
     loans: {
-      createdAt: Timestamp;
+      createdAt: TimestampType;
       description: string;
       loanId: string;
       amount: number;
     }[];
     amount: number;
-    deadline: Timestamp;
+    deadline: TimestampType;
     pictureUrl: string;
     name: string;
   };
@@ -29,26 +28,26 @@ export const DetailPage = () => {
   const mockData: getDetail = {
     loans: [
       {
-        createdAt: { seconds: 3668498018, nanoseconds: 349000000 } as Timestamp,
+        createdAt: { _seconds: 3668498018, _nanoseconds: 349000000 },
         description: 'ビール',
         loanId: 'af15heof0uhw',
         amount: 250,
       },
       {
-        createdAt: { seconds: 2668498018, nanoseconds: 349000000 } as Timestamp,
+        createdAt: { _seconds: 2668498018, _nanoseconds: 349000000 },
         description: 'ワイン',
         loanId: 'af15heof0uhw',
         amount: -250,
       },
       {
-        createdAt: { seconds: 1668498018, nanoseconds: 349000000 } as Timestamp,
+        createdAt: { _seconds: 1668498018, _nanoseconds: 349000000 },
         description: 'ハイボール',
         loanId: 'af15heof0uhw',
         amount: 500,
       },
     ],
     amount: 500,
-    deadline: { seconds: 4668498018, nanoseconds: 349000000 } as Timestamp,
+    deadline: { _seconds: 4668498018, _nanoseconds: 349000000 },
     pictureUrl: '/icon.jpg',
     name: '須藤路真',
   };
