@@ -1,7 +1,7 @@
 import Head from 'next/head';
 
 import { getMainLayout } from '@/components/Layout';
-import { DashboardPage } from '@/features/dashboard';
+import { TopPage } from '@/features/top/pages';
 import { NextPageWithLayout } from '@/pages/_app';
 
 const Page: NextPageWithLayout = () => {
@@ -11,7 +11,7 @@ const Page: NextPageWithLayout = () => {
         <title>貸しカエル🐸</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <DashboardPage />
+      <TopPage />
     </>
   )
 }

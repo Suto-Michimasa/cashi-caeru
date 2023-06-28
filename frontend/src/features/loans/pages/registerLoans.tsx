@@ -19,25 +19,37 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 import React, { ChangeEvent, useState } from 'react';
+import { useLiff } from '@/middleware/LineProvider';
+import { createLoan } from '../functions';
 
 export const RegisterLoans = () => {
-  const lenderId = '007';
-  const borrowerId = '008';
-
   const router = useRouter();
 
+  const { liff } = useLiff();
   const [type, setType] = useState<'lend' | 'borrow'>('lend');
   const [description, setDescription] = useState<string>('');
-  const [amount, setAmount] = useState<number>();
-  const [deadline, setDeadline] = useState<Date | null>(null);
+  const [amount, setAmount] = useState<number>(0);
+  const [deadline, setDeadline] = useState<Date>(new Date());
 
-  const onSubmit = () => {
-    console.log({
-      type: type,
-      description: description,
-      amount: amount,
-      deadline: deadline,
-    });
+  const onSubmit = async () => {
+    const profile = await liff?.getProfile();
+    if (profile) {
+      const creatorId = profile.userId;
+      // typeがborrowの時は、amountを-にする
+      try {
+        if (type === 'borrow') setAmount((-1) * amount);
+        createLoan({
+          creatorId: creatorId,
+          description: description,
+          amount: amount,
+          deadline: deadline,
+        });
+      } catch (error) {
+        console.error('Error creating loan:', error);
+      }
+    } else {
+      alert('登録に失敗しました。')
+    }
   };
   return (
     <Box>
@@ -52,12 +64,12 @@ export const RegisterLoans = () => {
             <RadioGroup onChange={() => setType} size={'lg'} name="isLend">
               <Stack direction="row" justify={'center'} spacing={'64px'}>
                 <Radio value="lend" colorScheme="blue">
-                  <Text fontSize={'20px'} color={'#1487E2'}>
+                  <Text fontWeight={'bold'} fontSize={'20px'} color={'#1487E2'}>
                     貸す
                   </Text>
                 </Radio>
                 <Radio value="borrow" colorScheme="red">
-                  <Text fontSize={'20px'} color={'#FF334B'}>
+                  <Text fontWeight={'bold'} fontSize={'20px'} color={'#FF334B'}>
                     借りる
                   </Text>
                 </Radio>
@@ -111,6 +123,7 @@ export const RegisterLoans = () => {
             m={'20px'}
             type="submit"
             h={16}
+            onClick={() => onSubmit}
           >
             <Text color={'white'} fontSize={'28px'} p={'20px'}>
               友達に送信
